@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"  
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="  
+		  http://www.springframework.org/schema/context  
+		  http://www.springframework.org/schema/context/spring-context-3.0.xsd  
+          http://www.springframework.org/schema/data/mongo  
+          http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd  
+          http://www.springframework.org/schema/beans  
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- 加载mongodb-config.properties -->
+	<context:property-placeholder location="classpath:mongodb-config.properties" />
+	
+	<mongo:mongo host="${mongo.host}" port="${mongo.port}" />
+	
+	<!-- <mongo:db-factory dbname="${mongo.dbname}" mongo-ref="mongo"
+		username="${mongo.username}" password="${mongo.password}" /> -->
+	 <mongo:db-factory dbname="${mongo.dbname}" mongo-ref="mongo" /> 
+	<!-- 增加验证 暂时不用 -->
+	<!-- <bean id="userCredentials" class="org.springframework.data.authentication.UserCredentials"> 
+		<constructor-arg name="username" value="${mongo.username}"></constructor-arg> 
+		<constructor-arg name="password" value="${mongo.password}"></constructor-arg> 
+		</bean> -->
+	<!-- 去除“_class”字段 -->
+	<bean id="mappingContext"
+		class="org.springframework.data.mongodb.core.mapping.MongoMappingContext" />
+	<!-- 配置mongodb映射类型 -->
+	<bean id="mappingMongoConverter"
+		class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+		<constructor-arg name="mongoDbFactory" ref="mongoDbFactory" />
+		<constructor-arg name="mappingContext" ref="mappingContext" />
+		<property name="typeMapper" ref="defaultMongoTypeMapper" />
+	</bean>
+	<!-- 默认Mongodb类型映射 -->
+	<bean id="defaultMongoTypeMapper"
+		class="org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper">
+		<constructor-arg name="typeKey">
+			<null /><!-- 这里设置为空,可以把 spring data mongodb 多余保存的_class字段去掉 -->
+		</constructor-arg>
+	</bean>
+	<!-- mongo的工厂，通过它来取得mongo实例,dbname为pe的数据库名，没有的话会自动创建 <constructor-arg name="userCredentials" 
+		ref="userCredentials"/> -->
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongoDbFactory" ref="mongoDbFactory" />
+		<constructor-arg name="mongoConverter" ref="mappingMongoConverter" />
+	</bean>
+	<!-- 映射转换器，扫描back-package目录下的文件，根据注释，把它们作为mongodb的一个collection的映射 -->
+	<mongo:mapping-converter base-package="com.bdd" />
+	<!-- mongodb bean的仓库目录，会自动扫描扩展了MongoRepository接口的接口进行注入 -->
+	<mongo:repositories base-package="com.bdd" />
+</beans>  
