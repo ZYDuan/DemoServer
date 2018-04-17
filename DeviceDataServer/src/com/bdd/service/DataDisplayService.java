@@ -3,6 +3,14 @@
  */
 package com.bdd.service;
 
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
+import com.bdd.domain.DeviceInfo;
+import com.bdd.domain.Point;
+import com.bdd.test.domain.Col;
+
 import responseVo.DeviceData;
 
 /**
@@ -17,5 +25,12 @@ public interface DataDisplayService {
 	 * 根据设备id获取设备信息
 	 */
 	DeviceData findDataById(Integer guid);
+
+	/**
+	 * @param timePoint
+	 * 获取时间段内点值
+	 * @throws ParseException 
+	 */
+	List<DeviceInfo> getTimePoint(Map<String, String> timePoint) throws ParseException;
 
 }

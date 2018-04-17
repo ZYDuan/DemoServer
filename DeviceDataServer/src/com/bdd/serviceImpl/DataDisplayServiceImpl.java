@@ -3,8 +3,10 @@
  */
 package com.bdd.serviceImpl;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +16,7 @@ import com.bdd.dao.DataDisplayDao;
 import com.bdd.domain.DeviceInfo;
 import com.bdd.domain.Point;
 import com.bdd.service.DataDisplayService;
+import com.bdd.utils.Range;
 
 import responseVo.DeviceData;
 import responseVo.Motor;
@@ -120,24 +123,31 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	private void setMotorStatus(Motor motor, String attribute, Integer v, List<Integer> status) {
 		if (attribute.equals("温度")) {
-			if (v < 35 || v > 78)
+			if (v < Range.T_DOWN || v > Range.T_UP)
 				status.add(1);
 			else
 				status.add(0);
 			return;
 		} else if (attribute.equals("电流")) {
-			if (v < 310 || v > 490)
+			if (v < Range.C_DOWN || v > Range.C_UP)
 				status.add(1);
 			else
 				status.add(0);
 			return;
 		} else if (attribute.equals("电压")) {
-			if (v < 660 || v > 740)
+			if (v < Range.V_DOWN || v > Range.V_UP)
 				status.add(1);
 			else
 				status.add(0);
 			return;
 		}
+	}
+
+	
+	@Override
+	public List<DeviceInfo> getTimePoint(Map<String, String> timePoint) throws ParseException {
+		List<DeviceInfo> data  = dataDisplayDaoImpl.findByTime(timePoint);
+		return data;
 	}
 
 }
